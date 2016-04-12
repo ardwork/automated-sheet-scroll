@@ -1,0 +1,11 @@
+{
+    "name" : "Auto Sheet Scroll",
+    "description" : "Extension - automated/timed scroll through base sheets",
+    "icon" : "extension",
+    "type" : "visualization",
+    "version": "0.1",
+    "preview" : "bar",
+    "author": "Richard Byard"
+}
+
+
