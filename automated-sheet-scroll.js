@@ -1,161 +1,84 @@
 ////////////////////////////////////////////////////
-//Version: 	0.2
+//Version: 	1.0.0
 //Author:  	Richard Byard
 //Usage:	Automated sheet scroll extension scripts
-//Date:		11 April 2016
+//Date:		13 April 2016
 ////////////////////////////////////////////////////
 
 define( [
+        // Load the properties.js file using requireJS
+        // Note: If you load .js files, omit the file extension, otherwhise
+        // requireJS will not load it correctly 
 		'jquery',
-		'ng!$q',
-		'qlik',
+		'qlik' ,
+        './properties/properties' //,
+//		'./properties/initialProperties',
 		/***********************
 		This is used to reference specific CSS V2.0 upwards.
 		QlikSense set the CSS class qv-object-[extension name] on your visualizations 
 		and your CSS rules should be prefixed with that.
 		************************/
-		'css!./automated-sheet-scroll.css'  
-	], 
-	function ( $, $q, qlik) {
-		'use strict';
+//		'css!./automated-sheet-scroll.css'  
 		
-		
-//************************ SETUP ***********************************************
-	//Define the current application
-	var app = qlik.currApp();
-	//Create a function that returns a list of the sheets in the application
-	var getSheetList = function (){
-		var defer = $q.defer();
+    ],
+	
+    function ( $, qlik, props/*, initProps, styleSheet*/) {
+        'use strict';	
+		//Inject Stylesheet into header of current document
+//		$( '<style>' ).html(styleSheet).appendTo( 'head' );
 
-		app.getAppObjectList( function ( data ) {
-			var sheets = [];
-			var sortedData = _.sortBy( data.qAppObjectList.qItems, function ( item ) {
-				return item.qData.rank;
-			} );
-			_.each( sortedData, function ( item ) {
-				sheets.push( {
-					value: item.qInfo.qId,
-					label: item.qMeta.title
-				} );
-			} );
-			return defer.resolve( sheets );
-		} );
+        return {
 
-		return defer.promise;
-	};
-
-	
-	// create sheet list
-	var sheetList = {
-		type: "string",
-		component: "dropdown",
-		label: "Select the destination sheet",
-		ref: "selectedSheet",
-		options: function () {
-			return getSheetList().then( function ( items ) {
-				return items;
-			} );
-		}
-	};
-	
-	
-	// create timer list
-	var timeDelay = {
-		type:"number",
-		component: "dropdown",
-		label: "Select time delay before moving to next sheet",
-		ref:"timeDelay",
-		defaultValue: 20000,
-		options:[{
-				value: 5000,
-				label: "5 seconds"
-				},{
-				value: 10000,
-				label: "10 seconds"
-				},{
-				value: 15000,
-				label: "15 seconds"
-				},{
-				value: 20000,
-				label: "20 seconds"
-				},{
-				value: 25000,
-				label: "25 seconds"
-				},{
-				value: 30000,
-				label: "30 seconds"
-				},{
-				value: 60000,
-				label: "1 minute"
-				}
-				]		
-	};
-	
-	
-	var Options = {
-		type:"items",
-		label:"Options",
-		items: {
-			timeDelay:timeDelay,
-			sheetList:sheetList
+			//Define the properties tab - these are defined in the properties.js file
+             definition: props,
 			
-		},
-	
-	};
-	
-    // *****************************************************************************
-    // Main property panel definition
-    // ~~
-    // Only what's defined here will be returned from properties.js
-    // *****************************************************************************
-	  
-	//******************************************************************************
-
-    return {
- 
-
-//************************ SETTINGS ***********************************************
-		
- 
-		definition: {
-			type: "items",
-			component: "accordion",
-			items: {
-				//Default Sections
-				//dimensions: dimensions,
-				//measures: measures,
-				//appearance: appearanceSection,
-
-				//Custom Sections
-				Options: Options
-				//MyColorPicker: MyColorPicker
-				//miscSettings: miscSettings
-
-				}
-			},
-
-
-								
+			//Define the data properties - how many rows and columns to load.
+//			 initialProperties: initProps,
+			
+			//Not sure if there are any other options available here.
+			  snapshot: {cantTakeSnapshot: true
+			 }, 
+			
+			
+			 
+			 
 //************************ ACTION ***********************************************
-			
-			
-		paint: function ( $element, layout ) {
-        
-		$element.empty();
-		
-		if (qlik.navigation.getMode() != 'edit' ) {	
-						setTimeout(function() {qlik.navigation.gotoSheet(layout.selectedSheet);}, layout.timeDelay);
+			//paint function creates the visualisation. - this one makes a very basic table with no selections etc.
+            paint: function ( $element , layout ) {
+				
+				$element.empty();
+
+				
+				var selectedSheet = layout.selectedSheet;
+				
+				console.log('Sheet selected', selectedSheet);
+				
+				var timeDelay = layout.timeDelay;
+				
+				console.log('Time delay selected', timeDelay);
+				
+				if (qlik.navigation.getMode() != 'edit' ) {	
+								
+						setTimeout(function() {qlik.navigation.gotoSheet(selectedSheet);}, timeDelay);
+								
+						};
+				
 						
-				};
-		
-		}			
-	
-	};								
-	});							
-								
-								
-								
-								
+			}
 			
-	
-	
+        }
+    }
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
